@@ -1,0 +1,138 @@
+.CSEG
+.ORG 0
+	jmp main
+.CSEG
+.ORG 0x0046
+
+digits:
+.db 0xC0, 0xF9
+
+inic:
+    ldi r16, 0b11000000
+	out DDRD, r16
+	out PORTD, r16
+	ldi r16, 0b11111111
+	out DDRA, r16
+	out PORTA, r16
+	ldi r16, 0b11111111
+	out DDRC, r16
+	out PORTC, r16
+
+	ldi r16, 124
+	out ocr0, r16
+	ldi r16, 0b00001110
+	out tccr0, r16
+
+	ret
+
+main:
+	ldi r16, 0xff
+	out spl, r16
+	ldi r16, 0x10
+	out sph, r16
+	
+	call inic
+
+; Função loop
+ciclo:
+	in r16, PIND	;Verifica se S1 está pressionado
+	cpi r16, 0b11111110
+	breq incrementa
+
+	in r16, PIND	;Verifica se S2 está pressionado
+	cpi r16, 0b11110111
+	breq stop
+
+    rjmp ciclo
+
+; Função de incrementa ate 6
+incrementa:
+	call delay1s
+	inc r20
+	rjmp display
+
+; Função de para no numero que ficou
+stop:
+	ldi r16, 0b11111111
+	out PORTA, r16
+	rjmp ciclo
+
+display:	;---- Compara valor e exibe o número de vagas no display----
+    cpi r20, 0
+    breq num_0
+    cpi r20, 1
+    breq num_1
+    cpi r20, 2
+    breq num_2
+    cpi r20, 3
+    breq num_3
+    cpi r20, 4
+    breq num_4
+    cpi r20, 5
+    breq num_5
+    cpi r20, 6
+    breq num_6
+
+num_0:
+    ldi r16, 0b11000000
+    out PORTC, r16
+    rjmp incrementa
+
+num_1:
+    ldi r16, 0b11111001
+    out PORTC, r16
+    rjmp incrementa
+
+num_2:
+    ldi r16, 0b10100100
+    out PORTC, r16
+    rjmp incrementa
+
+num_3:
+    ldi r16, 0b10110000
+    out PORTC, r16
+    rjmp incrementa
+
+num_4:
+    ldi r16, 0b10011001
+    out PORTC, r16
+    rjmp incrementa
+
+num_5:
+    ldi r16, 0b10010010
+    out PORTC, r16
+    rjmp incrementa
+
+num_6:
+    ldi r16, 0b10000010
+    out PORTC, r16
+    rjmp reset_r20
+
+reset_r20:
+	ldi r20, 0
+	rjmp incrementa
+
+; Função de atraso para delay de 1 segundo
+delay1s:
+    push r17
+    push r18
+    push r19
+
+    ldi r19, 255
+ciclo4:
+    ldi r18, 85
+ciclo5:
+    ldi r17, 255
+ciclo6:
+    dec r17
+    brne ciclo6
+    dec r18
+    brne ciclo5
+
+    dec r19
+    brne ciclo4
+
+    pop r19
+    pop r18
+    pop r17
+    ret

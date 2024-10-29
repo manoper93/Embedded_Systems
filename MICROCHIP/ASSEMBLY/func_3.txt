@@ -1,0 +1,319 @@
+.CSEG
+.ORG 0
+    jmp main
+.CSEG
+.ORG 0x46
+
+inic:
+    ldi r16, 0b11000000		;portD 11-display 0 (mais à direita) 000000-entradas (switchs)
+    out DDRD, r16
+    out PORTD, r16
+    ldi r16, 0b11111111		;porA saidas (leds)
+    out DDRA, r16
+    out PORTA, r16
+    ldi r16, 0b11111111		;portC saídas (display)
+    out DDRC, r16
+    out PORTC, r16
+    
+       
+    ldi r22, 9			;Inicializa o número de vagas
+    ret
+
+    
+main:
+    ldi r16, 0xff
+    out spl, r16
+    ldi r16, 0x10
+    out sph, r16
+
+    
+    call inic
+
+
+ciclo:
+    rcall exibir_vagas  
+    rcall entrada         
+    rcall saida         
+    
+    rjmp ciclo          
+
+
+    
+exibir_vagas:;---------Exibe o número de vagas no display---------
+   rcall display
+
+   in r16, PIND	;Verifica se S1 está pressionado
+   cpi r16, 0b11111110
+   brne entrada
+   
+   in r16, PIND	;Verifica se S2 está pressionado
+   cpi r16, 0b11011111
+   brne saida
+ 
+
+
+entrada:    ;--------------entra uma pessoa--------------------
+    call delay1ms
+    in r16, PIND
+    cpi r16, 0b11111110
+    brne ciclo
+    
+entrada1:
+   in r16, PIND
+   cpi r16, 0b11011110
+   brne entrada1
+   call delay1ms
+   in r16, PIND
+   cpi r16, 0b11011110
+   brne ciclo
+  
+entrada2:
+   in r16, PIND
+   cpi r16, 0b11011111
+   brne entrada2
+   
+entrada3:
+   in r16, PIND
+   cpi r16, 0b11111111
+   brne entrada3
+   rjmp decrementa
+   
+   
+
+    
+saida:   ;----------------sai uma pessoa-----------------------
+    call delay1ms
+    in r16, PIND
+    cpi r16, 0b11011111
+    brne ciclo
+    
+saida1:
+   in r16, PIND
+   cpi r16, 0b11011110
+   brne saida1
+   call delay1ms
+   in r16, PIND
+   cpi r16, 0b11011110
+   brne ciclo
+  
+saida2:
+   in r16, PIND
+   cpi r16, 0b11111110
+   brne saida2
+   
+saida3:
+   in r16, PIND
+   cpi r16, 0b11111111
+   brne saida3
+   rjmp incrementa
+
+    rjmp ciclo
+
+decrementa:	;--------------Entra uma pessoa (decrementa uma vaga)-----------
+    dec r22
+    rjmp exibir_vagas
+
+incrementa:	;--------------Sai uma pessoa (incrementa uma vaga)-------------
+    inc r22
+    rjmp exibir_vagas
+
+display:	;---- Compara valor e exibe o número de vagas no display----
+    cpi r22, 0
+    breq num_0
+    cpi r22, 1
+    breq num_1
+    cpi r22, 2
+    breq num_2
+    cpi r22, 3
+    breq num_3
+    cpi r22, 4
+    breq num_4
+    cpi r22, 5
+    breq num_5
+    cpi r22, 6
+    breq num_6
+    cpi r22, 7
+    breq num_7
+    cpi r22, 8
+    breq num_8
+    cpi r22, 9
+    breq num_9
+
+num_0:
+    ldi r16, 0b11000000
+    out PORTC, r16
+    rcall luz_on
+    rcall trancar_porta
+    ret
+
+num_1:
+    ldi r16, 0b11111001
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_2:
+    ldi r16, 0b10100100
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_3:
+    ldi r16, 0b10110000
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_4:
+    ldi r16, 0b10011001
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_5:
+    ldi r16, 0b10010010
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_6:
+    ldi r16, 0b10000010
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_7:
+    ldi r16, 0b11111000
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_8:
+    ldi r16, 0b10000000
+    out PORTC, r16
+    rcall luz_on
+    ret
+
+num_9:
+    ldi r16, 0b10010000
+    out PORTC, r16
+    rcall luz_off
+    ret
+
+    
+luz_on:
+    ldi r16, 0b10111111
+    out PORTA, r16
+    ret
+
+luz_off:
+    ldi r16, 0b11111111
+    out PORTA, r16
+    ret
+
+trancar_porta:
+    ldi r16, 0b01111111
+    out PORTA, r16
+    ret
+
+;num_0:
+;   ldi r16, 0b11000000
+;   out PORTC, r16
+;   ret
+   
+;num_1:
+;  ldi r16, 0b11111001
+;  out PORTC, r16
+;  ret
+   
+;num_2: 
+;   ldi r16, 0b10100100
+;   out PORTC, r16
+;   ret
+   
+;num_3:
+;   ldi r16, 0b10110000
+;   out PORTC, r16
+;   ret
+
+;num_4:
+;   ldi r16, 0b10011001
+;   out PORTC, r16
+;   ret
+
+;num_5:
+;   ldi r16, 0b10010010
+;   out PORTC, r16
+;   ret
+
+;num_6:
+;   ldi r16, 0b10000010
+;   out PORTC, r16
+;   ret
+   
+;num_7:
+;   ldi r16, 0b11111000
+;   out PORTC, r16
+;   ret
+
+;num_8:
+;   ldi r16, 0b10000000
+;   out PORTC, r16
+;   ret
+
+;num_9:
+;   ldi r16, 0b10010000
+;   out PORTC, r16
+;   ret
+
+; Função de atraso para delay de 1 segundo
+delay1s:
+    push r17
+    push r18
+    push r19
+
+    ldi r19, 255
+ciclo4:
+    ldi r18, 85
+ciclo5:
+    ldi r17, 255
+ciclo6:
+    dec r17
+    brne ciclo6
+    dec r18
+    brne ciclo5
+
+    dec r19
+    brne ciclo4
+
+    pop r19
+    pop r18
+    pop r17
+    ret
+
+; Função de atraso para delay de 1ms
+delay1ms:
+    push r17
+    push r18
+    push r19
+
+    ldi r19, 2
+ciclo1:
+    ldi r18, 235
+ciclo2:
+    ldi r17, 235
+    
+ciclo3:
+    dec r17
+    brne ciclo3
+
+    dec r18
+    brne ciclo2
+
+    dec r19
+    brne ciclo1
+
+    pop r19
+    pop r18
+    pop r17
+    ret
