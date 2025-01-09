@@ -76,3 +76,7 @@ Through this project, students gained hands-on experience with:
 
 ![20230918_212841](https://github.com/user-attachments/assets/8106f324-1d1f-461d-97e1-59b748532ce4)
 ![20230918_212850](https://github.com/user-attachments/assets/38a02375-8179-480d-96c5-74798aa93bd9)
+
+## Github Link
+
+[Embedded_Systems](https://github.com/manoper93/Embedded_Systems)
