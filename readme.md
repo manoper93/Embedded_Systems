@@ -1,5 +1,5 @@
 # 🔥 Embedded Systems Project
-### Module Atmega128 
+**Module Atmega128**
 
 This project was developed as part of a university coursework, focusing on embedded systems programming and hardware-software integration. It demonstrates advanced use of the **ATmega128 microcontroller** to control a motor with encoder feedback, a potentiometer for speed adjustment, a 4-digit 7-segment display module, and buttons for user input. The project leverages both C and Assembly languages to achieve optimized performance and precise control.
 
